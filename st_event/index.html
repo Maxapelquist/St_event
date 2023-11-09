@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Upplägg 1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        table {
+            width: 30%;
+            border-collapse: collapse;
+            margin: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px;
+        }
+
+        th span {
+            display: block;
+        }
+
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .donation-text {
+            text-align: center;
+            margin: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .position {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Välkommen till Mitt Evenemang</h1>
+    </header>
+    <main>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            Herr
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Plats</th>
+                        <th>Namn</th>
+                        <th>Tid</th>
+                    </tr>
+                </thead>
+                <tbody id="herr-body">
+                    <!-- Här kommer herr-resultaten att visas -->
+                </tbody>
+            </table>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            Dam
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Plats</th>
+                        <th>Namn</th>
+                        <th>Tid</th>
+                    </tr>
+                </thead>
+                <tbody id="dam-body">
+                    <!-- Här kommer dam-resultaten att visas -->
+                </tbody>
+            </table>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            Ungdom
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Plats</th>
+                        <th>Namn</th>
+                        <th>Tid</th>
+                    </tr>
+                </thead>
+                <tbody id="ungdom-body">
+                    <!-- Här kommer ungdom-resultaten att visas -->
+                </tbody>
+            </table>
+        </div>
+        <div class="donation-text">
+            Tillsammans har vi samlat in <span id="donation-amount-text">0</span> kr till Suicide Zero
+        </div>
+        <div class="logo">
+            <img src="st_logo.png" alt="Suicide Zero Logo">
+        </div>
+    </main>
+
+    <script>
+        const apiKey = 'AIzaSyAA3_S2jNmaQtOk7MLdaQjmjtfdDjmjMJw'; // Ersätt med din API-nyckel
+        const spreadsheetId = '1jO7hIqR3vITWpnqKK5d4puz_jQZhYqEr-YgT5R6hgHg'; // Google Sheets dokument-ID
+
+        function getDataFromGoogleSheets() {
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Data?key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    const damBody = document.getElementById('dam-body');
+                    const herrBody = document.getElementById('herr-body');
+                    const ungdomBody = document.getElementById('ungdom-body');
+                    let damCounter = 1;
+                    let herrCounter = 1;
+                    let ungdomCounter = 1;
+
+                    // Sortera data baserat på tid innan visning
+                    data.values.sort((a, b) => a[1] - b[1]);
+
+                    data.values.forEach(row => {
+                        const tr = document.createElement('tr');
+                        const tdPosition = document.createElement('td');
+                        const tdName = document.createElement('td');
+                        const tdTime = document.createElement('td');
+
+                        tdName.textContent = row[0]; // Namn
+                        tdTime.textContent = row[1] + ' sekunder'; // Tid (sekunder)
+
+                        tr.appendChild(tdPosition);
+                        tr.appendChild(tdName);
+                        tr.appendChild(tdTime);
+
+                        const category = row[2]; // Kategorin (Dam, Herr, Ungdom)
+
+                        if (category === 'Dam') {
+                            tdPosition.textContent = damCounter++;
+                            damBody.appendChild(tr);
+                        } else if (category === 'Herr') {
+                            tdPosition.textContent = herrCounter++;
+                            herrBody.appendChild(tr);
+                        } else if (category === 'Ungdom') {
+                            tdPosition.textContent = ungdomCounter++;
+                            ungdomBody.appendChild(tr);
+                        }
+                    });
+
+                    // Beräkna totala donationen baserat på antalet poster
+                    const totalDonationAmount = data.values.length * 100;
+                    document.getElementById('donation-amount-text').textContent = totalDonationAmount;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        getDataFromGoogleSheets();
+    </script>
+</body>
+</html>
