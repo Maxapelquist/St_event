@@ -1,115 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lägg till information i Google Sheets</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Forms Integration</title>
     <style>
-        /* Din CSS-stil här */
+        /* CSS-stilar här */
     </style>
 </head>
 <body>
-    <h1>Lägg till information i Google Sheets</h1>
-
-    <form id="data-form">
-        <label for="name">Namn:</label>
-        <input type="text" id="name" required>
-
-        <label for="time">Tid (sekunder):</label>
-        <input type="number" id="time" required>
-
-        <label for="category">Kategori:</label>
-        <select id="category" required>
-            <option value="Dam">Dam</option>
-            <option value="Herr">Herr</option>
-            <option value="Ungdom">Ungdom</option>
-        </select>
-
-        <button type="submit">Lägg till</button>
-    </form>
-
+    <header>
+        <h1>Välkommen till Mitt Evenemang</h1>
+    </header>
+    <main>
+        <div class="table-container">
+            <!-- Tabellstruktur här -->
+        </div>
+        <div class="donation-text">
+            <!-- Donationstext här -->
+        </div>
+        <div class="logo">
+            <!-- Logotyp här -->
+        </div>
+        <h2>Data Submission Form</h2>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe7nUj4GTVKcVFVflQIlTMmkTt8zwiIsXlSp5HEp5_dPHJPew/viewform?embedded=true" width="640" height="797" frameborder="0" marginheight="0" marginwidth="0">Läser in …</iframe>
+    </main>
     <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        // Ditt klient-ID
-        const clientId = '545362542799-isl8bej8ofg9de92h93mh0edeujgkvcg.apps.googleusercontent.com';
-        const spreadsheetId = '1jO7hIqR3vITWpnqKK5d4puz_jQZhYqEr-YgT5R6hgHg';
-        const apiKey = 'AIzaSyC1uhQ1ru4wyUnuGvv6Z6-GXEgm7cSAB9Q';
-
-        // API-funktionen som anropas när formuläret skickas
-        function appendDataToSheet(data) {
-            const range = 'A2'; // Kolumn A, börja från andra raden
-            const valueInputOption = 'RAW';
-            const insertDataOption = 'INSERT_ROWS';
-            const resource = {
-                values: [data]
-            };
-
-            gapi.client.sheets.spreadsheets.values.append({
-                spreadsheetId: spreadsheetId,
-                range,
-                valueInputOption,
-                insertDataOption,
-                resource
-            }).then(function(response) {
-                console.log('Data har lagts till i Google Sheets:', response);
-            }, function(reason) {
-                console.error('Det uppstod ett fel:', reason);
-            });
-        }
-
-        // Funktion som kallas när formuläret skickas
-        document.getElementById('data-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const name = document.getElementById('name').value;
-            const time = document.getElementById('time').value;
-            const category = document.getElementById('category').value;
-
-            // Skicka data till Google Sheets
-            appendDataToSheet([name, time, category]);
-
-            // Återställ formuläret
-            document.getElementById('name').value = '';
-            document.getElementById('time').value = '';
-            document.getElementById('category').value = 'Dam';
-        });
-
-        // Ladda Google API och autentisera med JSON-nyckeln
-        gapi.load('client', function() {
-            gapi.client.init({
-                apiKey: apiKey, // Använd din JSON-nyckel här
-                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-            }).then(function() {
-                console.log('Google API är redo att användas');
-                // Auktorisera användaren direkt när API:et är klart
-                oauthSignIn();
-            });
-        });
-
-        function oauthSignIn() {
-            // Google's OAuth 2.0 endpoint for requesting an access token
-            var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
-
-            // Spara den aktuella sidans URL
-            var currentUrl = 'http://localhost:63342/redirect';
-
-            // Parameters to pass to OAuth 2.0 endpoint.
-            var params = {
-                'client_id': clientId, // Använd ditt klient-ID
-                'redirect_uri': currentUrl, // Använd den aktuella sidans URL
-                'response_type': 'token',
-                'scope': 'https://www.googleapis.com/auth/spreadsheets',
-                'include_granted_scopes': 'true',
-                'state': 'pass-through value'
-            };
-
-            // Construct the authorization URL
-            var authUrl = oauth2Endpoint + '?' + Object.keys(params).map(function (key) {
-                return key + '=' + encodeURIComponent(params[key]);
-            }).join('&');
-
-            // Redirect the user to the authorization URL
-            window.location.href = currentUrl;
-        }
+        // Här kan du eventuellt lägga till ytterligare JavaScript-kod om det behövs
     </script>
 </body>
 </html>
