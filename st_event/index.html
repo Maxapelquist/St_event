@@ -146,27 +146,18 @@
         </div>
     </main>
     <script src="https://apis.google.com/js/api.js"></script>
+ <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        const apiKey = 'AIzaSyAA3_S2jNmaQtOk7MLdaQjmjtfdDjmjMJw'; // Replace with your Google API key
-        const spreadsheetId = '1jO7hIqR3vITWpnqKK5d4puz_jQZhYqEr-YgT5R6hgHg'; // Replace with your Google Sheets document ID
-        const sheetName = 'Sheet1'; // Replace with the name of your sheet
-        const dataRange = 'A1:C100'; // Replace with the desired range
+        const apiKey = 'AIzaSyAA3_S2jNmaQtOk7MLdaQjmjtfdDjmjMJw';
+        const spreadsheetId = '1jO7hIqR3vITWpnqKK5d4puz_jQZhYqEr-YgT5R6hgHg';
+        const sheetName = 'Form';
+        const dataRange = 'A1:C100';
 
         function getDataFromGoogleSheets() {
-            gapi.client.init({
-                'apiKey': apiKey,
-                'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-            }).then(() => {
-                return gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: spreadsheetId,
-                    range: `${sheetName}!${dataRange}`,
-                });
-            }).then((response) => {
-                const data = response.result.values;
-                populateTable(data);
-            }).catch(error => {
-                console.error(error);
-            });
+            return gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: spreadsheetId,
+                range: `${sheetName}!${dataRange}`,
+            }).then(response => response.result.values);
         }
 
         function populateTable(data) {
@@ -205,7 +196,40 @@
             document.getElementById('donation-amount-text').textContent = totalDonationAmount;
         }
 
-        gapi.load('client', getDataFromGoogleSheets);
+        function updateData() {
+            getDataFromGoogleSheets().then(data => {
+                // Rensa befintlig tabell innan uppdatering
+                ['herr-body', 'dam-body', 'ungdom-body'].forEach(categoryId => {
+                    const categoryBody = document.getElementById(categoryId);
+                    if (categoryBody) {
+                        categoryBody.innerHTML = '';
+                    }
+                });
+
+                populateTable(data);
+            }).catch(error => {
+                console.error(error);
+            });
+        }
+
+        function startDataUpdateInterval() {
+            // Uppdatera var 5:e minut (justerbar efter behov)
+            setInterval(updateData, 2 * 1000);
+        }
+
+        function init() {
+            gapi.client.init({
+                'apiKey': apiKey,
+                'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+            }).then(() => {
+                updateData(); // Uppdatera första gången sidan laddas
+                startDataUpdateInterval(); // Starta intervallet för upprepade uppdateringar
+            }).catch(error => {
+                console.error('Error initializing:', error);
+            });
+        }
+
+        gapi.load('client', init);
     </script>
 </body>
 </html>
